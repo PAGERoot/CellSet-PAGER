@@ -2,7 +2,6 @@
 
 
 library(shiny)
-library(shinyFiles)
 
 shinyUI(fluidPage(
   
