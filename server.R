@@ -24,24 +24,34 @@ shinyServer(
         
         if (is.null(pathData)) return(NULL)
         
-        # Attach the reporter informations
-        list.f <- list.files(pathData)
-        rs <- NULL
-        for(f in list.f){
-          name <- gsub(".xlsx", "", f)
-          for(i in 1:20){
-            tryCatch({
-              temp <- read_excel(paste0(pathData, f), sheet = i)
-              temp <- temp[!is.na(temp[,1]),]
-              # Normalize the fluorescence data
-              fluo <- scale(temp[["Average flourescence"]])
-              rs <- rbind(rs, data.frame(line=name, root=i, cell_type=temp$Label, value=fluo))
-            },warning = function(w) {
-            }, error = function(e) {
-            })
+        withProgress(message = 'WORKING:', value = 0, {
+          
+          
+          
+          # Attach the reporter informations
+          list.f <- list.files(pathData)
+
+          rs <- NULL
+          j <- 1
+          for(f in list.f){
+            message(round(j/length(list.f), 2))
+            incProgress(round(j/length(list.f), 2), detail = paste0("Loading the file ",f))
+            name <- gsub(".xlsx", "", f)
+            for(i in 1:20){
+              tryCatch({
+                temp <- read_excel(paste0(pathData, f), sheet = i)
+                temp <- temp[!is.na(temp[,1]),]
+                # Normalize the fluorescence data
+                fluo <- scale(temp[["Average flourescence"]])
+                rs <- rbind(rs, data.frame(line=name, root=i, cell_type=temp$Label, value=fluo))
+              },warning = function(w) {
+              }, error = function(e) {
+              })
+            }
+            j <- j+1
           }
-        }
-        remove(temp, i, f, list.f, name)
+          remove(temp, i, f, list.f, name)
+        })
         
         write.csv(rs, paste0(input$dirSave, "/reporter-data.csv"))
         

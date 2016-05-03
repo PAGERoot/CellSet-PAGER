@@ -6,7 +6,7 @@ library(shiny)
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel(h1("--| CellSet to PAGER |--")),
+  titlePanel(h1("--| CellSet to PAGE-Root |--")),
   
   fluidRow(
     column(3, wellPanel(
