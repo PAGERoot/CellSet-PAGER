@@ -30,7 +30,7 @@ library(shiny)
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel("--| CellSet to PAGE-Root |--"),
+  titlePanel("CellSet to PAGE-Root"),
   
   fluidRow(
     column(3, 
@@ -38,11 +38,13 @@ shinyUI(fluidPage(
         wellPanel(
         h4("1. Where are your xlsx files"),
         textInput('dirPath', "Enter the name of folder containing the reporter xlsx files", f1, placeholder = "Select folder"),
+        selectInput("method", label = "How the transfort the data", choices = c("Normalize", "Standardize", "Do nothing")),
+        selectInput("method2", label = "How the average the data", choices = c("Mean", "Median", "Min", "Max")),
         actionButton(inputId = "load_data", label="Load your data",icon("upload"))
         )
       ),
     
-    column(3,
+    column(5,
            h4("3. View your data"),
            tableOutput('table_results'),
            tags$hr(),
@@ -53,7 +55,7 @@ shinyUI(fluidPage(
            
     ), 
   
-    column(3,wellPanel(
+    column(2,wellPanel(
       h4("4. Set your cell types"),
       selectInput("type1", label = cell_types[1], choices = "Load files"),
       selectInput("type2", label = cell_types[2], choices = "Load files"),
@@ -67,12 +69,13 @@ shinyUI(fluidPage(
       
     )),
     
-    column(3, 
+    column(2, 
            div(htmlOutput("check"), style="color:green"),
            div(htmlOutput("notcheck"), style="color:red"),
            tags$hr(),
            wellPanel(
              h4("5. Save the data file?"),
+             sliderInput("tokeep", "How many value per root/cell type:", min=1, max=10, value=1, step=1),
              downloadButton("save_data", "Download RSML")
            )
       

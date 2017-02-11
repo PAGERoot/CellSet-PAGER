@@ -35,7 +35,7 @@ shinyServer(
   
   function(input, output, clientData, session) {  
     
-    dataset <- reactiveValues(rep = NULL)
+    dataset <- reactiveValues(rep = NULL, raw = NULL)
     
     # For the root paramerers
     observe({
@@ -49,7 +49,18 @@ shinyServer(
         updateSelectInput(session, paste0("type",i), choices = ts, selected = ts[pmatch(substr(cell_types[i], 0, 3), ts)])
       }
       
-    })    
+    })
+    
+    observe({
+      if(is.null(dataset$raw)) return()
+
+      rs <- dataset$raw
+      rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
+      rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
+      
+      dataset$rep <- rs      
+      
+    })
         
     
     observeEvent(input$load_data, {
@@ -65,7 +76,6 @@ shinyServer(
 
         # Attach the reporter informations
         #pathData <- "../test_data/small_dataset/"
-        message(pathData)
         list.f <- list.files(pathData)
         nfiles <<- length(list.f)
         
@@ -80,9 +90,13 @@ shinyServer(
               tryCatch({
                 temp <- read_excel(paste0(pathData, f), sheet = i)
                 temp <- temp[!is.na(temp[,1]),]
-                # Normalize the fluorescence data
-                fluo <- temp[["Average flourescence"]]
-                #fluo <- scale(temp[["Average flourescence"]])
+                
+                # Normalize the fluorescence data (if required)
+
+                if(input$method == "Normalize") fluo <- range01(temp[["Average flourescence"]])
+                if(input$method == "Standardize") fluo <- scale(temp[["Average flourescence"]])
+                if(input$method == "Do nothing") fluo <- temp[["Average flourescence"]] 
+                
                 rs <- rbind(rs, data.frame(line=name, root=i, cell_type=temp$Label, value=fluo))
               },warning = function(w) {
               }, error = function(e) {
@@ -91,20 +105,28 @@ shinyServer(
           }
         })
         
+        message(">>>>>>>>>>>>")
+        print(head(rs))
+        message(">>>>>>>>>>>>")
+        
         remove(temp, i, f, list.f, name)
         rs <- rs[!is.na(rs$value),]
+        dataset$raw <- rs
         
-        rs$id <- rep(c(1:5), ceiling(nrow(rs)/3))[1:nrow(rs)]
-        rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
+        rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
         
-        message(nrow(rs))
+        
+        if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
+        if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
+        if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
+        if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
         
         dataset$rep <- rs
         
     })
         
     observeEvent(input$update_data, {
-      rs <- dataset$rep
+      rs <- dataset$raw
       rs$cell_type[rs$cell_type == input$type1] <- cell_types[1]
       rs$cell_type[rs$cell_type == input$type2] <- cell_types[2]
       rs$cell_type[rs$cell_type == input$type3] <- cell_types[3]
@@ -112,7 +134,7 @@ shinyServer(
       rs$cell_type[rs$cell_type == input$type5] <- cell_types[5]
       rs$cell_type[rs$cell_type == input$type6] <- cell_types[6]
       rs$cell_type[rs$cell_type == input$type7] <- cell_types[7]
-      dataset$rep <- rs
+      dataset$raw <- rs
     })
     
     # ----------------------------------------------------------------
@@ -131,15 +153,12 @@ shinyServer(
       filename = function() {
         if(is.null(dataset$rep)) return()
         if(length(unique(dataset$rep$cell_type)) != length(cell_types)) return()
-        
         "experession.rsml"
       },
       
       # This function should write data to a file given to it by
       # the argument 'file'.
       content = function(file) {
-        
-        
         
         withProgress(message = 'Saving data', {
           
@@ -155,7 +174,6 @@ shinyServer(
           rs$cell_type[rs$cell_type == input$type6] <- cell_types[6]
           rs$cell_type[rs$cell_type == input$type7] <- cell_types[7]
           
-          message(unique(rs$cell_type))
           # Write down th RSML file to store the data
           rsmlText <- "<?xml version='1.0' encoding='UTF-8'?>\n"
           rsmlText <- paste0(rsmlText, "\t<rsml xmlns:po='http://www.plantontology.org/xml-dtd/po.dtd'>\n")
@@ -251,7 +269,8 @@ shinyServer(
       }else{
         "More cell types in the dataset than allowed. Please update your datafile"
       }
-    })     
+    })    
+    
     
     output$lines <- renderText({ 
       if (is.null(dataset$rep)) { return()}

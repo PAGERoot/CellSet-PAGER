@@ -28,11 +28,18 @@
 ###### Load libraries
 ##################################################################
 
+packages <- c("plyr", "digest", "readxl")
 
-library("readxl")
-library("digest")
-library("plyr")
+for(p in packages){
+  if (!require(p,character.only = TRUE)){
+    install.packages(p, dep=TRUE)
+    if(!require(p,character.only = TRUE)) stop("Package not found")
+  }
+}
+
 cell_types <- c("columella","cortex","endodermis","epidermis","lateralrootcap","QC","stele" )
 
 f1 <-  "/Users/g.lobet/OneDrive - UCL/03_research/0_page-root/test_data/small_dataset"
 f2 <-   "/Users/g.lobet/Desktop"
+
+range01 <- function(x){(x-min(x))/(max(x)-min(x))}
