@@ -37,7 +37,12 @@ for(p in packages){
   }
 }
 
+# Accepted cell types
 cell_types <- c("columella","cortex","endodermis","epidermis","lateralrootcap","QC","stele" )
+
+# Color scale
+cscale <- c("#ffffcc", "#a1dab4","#41b6c4", "#2c7fb8", "#253494")
+
 
 f1 <-  "/Users/g.lobet/OneDrive - UCL/03_research/0_page-root/test_data/small_dataset"
 f2 <-   "/Users/g.lobet/Desktop"

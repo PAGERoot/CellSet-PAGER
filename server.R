@@ -52,12 +52,19 @@ shinyServer(
     })
     
     observe({
-      if(is.null(dataset$raw)) return()
+      if(is.null(dataset$raw)){return()}
 
       rs <- dataset$raw
       rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
-      rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
       
+      if(input$method == "Normalize") rs$value <- ddply(rs, .(line, root), summarize, value=range01(value))$value
+      if(input$method == "Standardize") rs$value <- ddply(rs, .(line, root), summarize, value=scale(value))$value
+      
+      if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
+      if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
+      if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
+      if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
+
       dataset$rep <- rs      
       
     })
@@ -75,7 +82,7 @@ shinyServer(
         # if (is.null(pathData)) return(NULL)
 
         # Attach the reporter informations
-        #pathData <- "../test_data/small_dataset/"
+        # pathData <- "../test_data/small_dataset/"
         list.f <- list.files(pathData)
         nfiles <<- length(list.f)
         
@@ -92,12 +99,8 @@ shinyServer(
                 temp <- temp[!is.na(temp[,1]),]
                 
                 # Normalize the fluorescence data (if required)
-
-                if(input$method == "Normalize") fluo <- range01(temp[["Average flourescence"]])
-                if(input$method == "Standardize") fluo <- scale(temp[["Average flourescence"]])
-                if(input$method == "Do nothing") fluo <- temp[["Average flourescence"]] 
                 
-                rs <- rbind(rs, data.frame(line=name, root=i, cell_type=temp$Label, value=fluo))
+                rs <- rbind(rs, data.frame(line=name, root=i, cell_type=temp$Label, value=temp[["Average flourescence"]]))
               },warning = function(w) {
               }, error = function(e) {
               })
@@ -105,22 +108,24 @@ shinyServer(
           }
         })
         
-        message(">>>>>>>>>>>>")
-        print(head(rs))
-        message(">>>>>>>>>>>>")
-        
+
         remove(temp, i, f, list.f, name)
         rs <- rs[!is.na(rs$value),]
+        
         dataset$raw <- rs
         
+
         rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
         
+        if(input$method == "Normalize") rs$value <- ddply(rs, .(line, root), summarize, value=range01(value))$value
+        if(input$method == "Standardize") rs$value <- ddply(rs, .(line, root), summarize, value=scale(value))$value
         
         if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
         if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
         if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
         if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
-        
+
+
         dataset$rep <- rs
         
     })
@@ -153,7 +158,7 @@ shinyServer(
       filename = function() {
         if(is.null(dataset$rep)) return()
         if(length(unique(dataset$rep$cell_type)) != length(cell_types)) return()
-        "experession.rsml"
+        "reporter.rsml"
       },
       
       # This function should write data to a file given to it by
@@ -279,7 +284,7 @@ shinyServer(
     
     output$table_results <- renderTable({
       if (is.null(dataset$rep)) { return()}
-      dataset$rep[1:5,]
+      dataset$rep[1:(min(10, nrow(dataset$rep))),]
     })  
     
     
