@@ -40,6 +40,7 @@ shinyUI(fluidPage(
         textInput('dirPath', "Enter the name of folder containing the reporter xlsx files", f1, placeholder = "Select folder"),
         # selectInput("method", label = "How the transfort the data", choices = c("Standardize", "Normalize", "Do nothing")),
         # selectInput("method2", label = "How the average the data", choices = c("Mean", "Median", "Min", "Max")),
+        # checkboxInput('log2', "Log2 trasnform your data", value = TRUE, width = NULL),
         actionButton(inputId = "load_data", label="Load your data",icon("upload"))
         )
       ),

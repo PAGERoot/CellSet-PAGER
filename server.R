@@ -50,25 +50,26 @@ shinyServer(
       }
       
     })
-    
+    # 
     observe({
       if(is.null(dataset$raw)){return()}
 
       rs <- dataset$raw
+
       # rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
-      # 
+      #
       # if(input$method == "Normalize") rs$value <- ddply(rs, .(line, root), summarize, value=range01(value))$value
       # if(input$method == "Standardize") rs$value <- ddply(rs, .(line, root), summarize, value=scale(value))$value
-      # 
+      #
       # if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
       # if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
       # if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
       # if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
 
-      dataset$rep <- rs      
-      
+      dataset$rep <- rs
+
     })
-        
+    #     
     
     observeEvent(input$load_data, {
             
@@ -111,6 +112,9 @@ shinyServer(
 
         remove(temp, i, f, list.f, name)
         rs <- rs[!is.na(rs$value),]
+        
+        #log2 transofmr the data
+        # if(input$log2) rs$value <- log2(rs$value)
         
         dataset$raw <- rs
         
