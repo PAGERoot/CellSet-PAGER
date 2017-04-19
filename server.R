@@ -55,15 +55,15 @@ shinyServer(
       if(is.null(dataset$raw)){return()}
 
       rs <- dataset$raw
-      rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
-      
-      if(input$method == "Normalize") rs$value <- ddply(rs, .(line, root), summarize, value=range01(value))$value
-      if(input$method == "Standardize") rs$value <- ddply(rs, .(line, root), summarize, value=scale(value))$value
-      
-      if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
-      if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
-      if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
-      if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
+      # rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
+      # 
+      # if(input$method == "Normalize") rs$value <- ddply(rs, .(line, root), summarize, value=range01(value))$value
+      # if(input$method == "Standardize") rs$value <- ddply(rs, .(line, root), summarize, value=scale(value))$value
+      # 
+      # if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
+      # if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
+      # if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
+      # if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
 
       dataset$rep <- rs      
       
@@ -115,16 +115,15 @@ shinyServer(
         dataset$raw <- rs
         
 
-        rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
-        
-        if(input$method == "Normalize") rs$value <- ddply(rs, .(line, root), summarize, value=range01(value))$value
-        if(input$method == "Standardize") rs$value <- ddply(rs, .(line, root), summarize, value=scale(value))$value
-        
-        if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
-        if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
-        if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
-        if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
-
+        # rs$id <- rep(c(1:input$tokeep), ceiling(nrow(rs)/input$tokeep))[1:nrow(rs)]
+        # 
+        # if(input$method == "Normalize") rs$value <- ddply(rs, .(line, root), summarize, value=range01(value))$value
+        # if(input$method == "Standardize") rs$value <- ddply(rs, .(line, root), summarize, value=scale(value))$value
+        # 
+        # if(input$method2 == "Mean") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=mean(value))
+        # if(input$method2 == "Median") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=median(value))
+        # if(input$method2 == "Min") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=min(value))
+        # if(input$method2 == "Max") rs <- ddply(rs, .(line, root, cell_type, id), summarize, value=max(value))
 
         dataset$rep <- rs
         

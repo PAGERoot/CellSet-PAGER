@@ -38,8 +38,8 @@ shinyUI(fluidPage(
         wellPanel(
         h4("1. Where are your xlsx files"),
         textInput('dirPath', "Enter the name of folder containing the reporter xlsx files", f1, placeholder = "Select folder"),
-        selectInput("method", label = "How the transfort the data", choices = c("Standardize", "Normalize", "Do nothing")),
-        selectInput("method2", label = "How the average the data", choices = c("Mean", "Median", "Min", "Max")),
+        # selectInput("method", label = "How the transfort the data", choices = c("Standardize", "Normalize", "Do nothing")),
+        # selectInput("method2", label = "How the average the data", choices = c("Mean", "Median", "Min", "Max")),
         actionButton(inputId = "load_data", label="Load your data",icon("upload"))
         )
       ),
@@ -75,7 +75,7 @@ shinyUI(fluidPage(
            tags$hr(),
            wellPanel(
              h4("5. Save the data file?"),
-             sliderInput("tokeep", "How many value per root/cell type:", min=1, max=10, value=1, step=1),
+             # sliderInput("tokeep", "How many value per root/cell type:", min=1, max=10, value=1, step=1),
              downloadButton("save_data", "Download RSML")
            )
       
